@@ -52,14 +52,17 @@ export default function Menubar() {
   } = useExec("ping", ["-q", "-c", "3", "-W", "2", "one.one.one.one"], {
     onError: () => {},
     keepPreviousData: false,
-    
   });
-
-  console.log(pingData);
 
   const { isLoading: warpLoading, data: warpData } = useExec("warp-cli", ["status"]);
 
-  const isLoading = pingLoading || warpLoading;
+  const { isLoading: myIpLoading, data: myIp } = useExec("dig", [
+    "+short",
+    "myip.opendns.com",
+    "@resolver1.opendns.com",
+  ]);
+
+  const isLoading = pingLoading || warpLoading || myIpLoading;
   const pingOutput = pingError?.message || pingData;
   const avgPing = parseAvgPing(pingOutput);
   const packetLoss = parsePacketLoss(pingOutput);
@@ -77,7 +80,9 @@ export default function Menubar() {
       tooltip={isOnline ? "You're Online!" : "You're Offline!"}
       isLoading={isLoading}
     >
-      {!!pingOutput && <MenubarStatusSection avgPing={avgPing} isOnline={isOnline} packetLoss={packetLoss} />}
+      {!!pingOutput && (
+        <MenubarStatusSection avgPing={avgPing} isOnline={isOnline} packetLoss={packetLoss} myIp={myIp} />
+      )}
 
       {!!warpData && <MenubarCloudflareSection warpData={warpData} />}
     </MenuBarExtra>
