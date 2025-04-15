@@ -1,13 +1,6 @@
 import { MenuBarExtra, open } from "@raycast/api";
 import { useExec } from "@raycast/utils";
-import { CloudflareStatuses } from "./menubar";
-
-const parseCloudflareConnectionStatus = (string: string | undefined) => {
-  if (!string) return "Unable";
-  const statusRegex = /Status update: (\w+)/;
-  const statusMatch = string.match(statusRegex);
-  return statusMatch ? (statusMatch[1] as CloudflareStatuses) : "Unable";
-};
+import { parseCloudflareConnectionStatus, type CloudflareStatuses } from "./utils";
 
 const cloudflareActionByStatus = new Map<CloudflareStatuses, string>([
   ["Connected", "Disconnect"],
