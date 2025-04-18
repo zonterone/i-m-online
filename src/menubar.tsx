@@ -33,7 +33,7 @@ export default function Menubar() {
     isLoading: myIpLoading,
     data: myIp,
     error: myIpError,
-  } = useExec("dig", ["+short", "myip.opendns.com", "@resolver1.opendns.com"], {
+  } = useExec("dig", ["+time=3", "+tries=1", "+short", "myip.opendns.com", "@resolver1.opendns.com"], {
     onError: () => {},
     keepPreviousData: true,
   });
