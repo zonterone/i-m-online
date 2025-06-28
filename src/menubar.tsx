@@ -39,9 +39,9 @@ export default function Menubar() {
   });
 
   const isLoading = pingLoading || warpLoading || myIpLoading;
-  const pingOutput = pingError?.message || pingData;
-  const warpOutput = warpError?.message || warpData;
-  const myIpOutput = myIpError?.message || myIp;
+  const pingOutput = pingError?.message? 'error' : pingData;
+  const warpOutput = warpError?.message? 'error' : warpData;
+  const myIpOutput = myIpError?.message? 'error' : myIp;
   const avgPing = parseAvgPing(pingOutput);
   const packetLoss = parsePacketLoss(pingOutput);
   const connectionStatus = getConnectionStatus(packetLoss, avgPing);
