@@ -51,7 +51,7 @@ export const parseCloudflareConnectionStatus = (string: string | undefined): Clo
  * @returns Connection status (good, bad, or offline)
  */
 export const getConnectionStatus = (packetLoss: string | null, avgPing: string | null): ConnectionStatus => {
-  if (!packetLoss || !avgPing || parseFloat(packetLoss) > 100) return "offline";
+  if (!packetLoss || !avgPing || parseFloat(packetLoss) >= 90) return "offline";
   if (parseFloat(packetLoss) > 3) return "bad";
   if (parseFloat(avgPing) > 200) return "bad";
   return "good";
