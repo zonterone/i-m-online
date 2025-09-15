@@ -50,10 +50,15 @@ export const parseCloudflareConnectionStatus = (string: string | undefined): Clo
  * @param avgPing - Average ping in ms
  * @returns Connection status (good, bad, or offline)
  */
-export const getConnectionStatus = (packetLoss: string | null, avgPing: string | null): ConnectionStatus => {
-  if (!packetLoss || !avgPing || parseFloat(packetLoss) >= 90) return "offline";
-  if (parseFloat(packetLoss) > 3) return "bad";
-  if (parseFloat(avgPing) > 200) return "bad";
+export const getConnectionStatus = (
+  packetLoss: string | null,
+  avgPing: string | null,
+  connectTime: number | null,
+): ConnectionStatus => {
+  if (!packetLoss && !avgPing && !connectTime) return "offline";
+  if (packetLoss && parseFloat(packetLoss) > 3) return "bad";
+  if (avgPing && parseFloat(avgPing) > 200) return "bad";
+  if (connectTime && connectTime > 1000) return "bad";
   return "good";
 };
 
@@ -71,4 +76,26 @@ export const getConnectionStatusColor = (connectionStatus: ConnectionStatus): st
     default:
       return "#FF9580";
   }
+};
+
+/**
+ * Parses connect time from curl command output
+ * @param data - Output from curl command
+ * @returns Connect time or null if not found
+ */
+export const parseConnectTime = (
+  data: string | undefined,
+): { connectTime: number | null; ttfbTime: number | null; totalTime: number | null } => {
+  const connectTimeRegex = /connect=(\d+\.\d+)/;
+  const ttfbRegex = /ttfb=(\d+\.\d+)/;
+  const totalRegex = /total=(\d+\.\d+)/;
+  const connectMatch = data?.match(connectTimeRegex);
+  const ttfbMatch = data?.match(ttfbRegex);
+  const totalMatch = data?.match(totalRegex);
+
+  return {
+    connectTime: connectMatch ? parseFloat(connectMatch[1]) * 1000 : null,
+    ttfbTime: ttfbMatch ? parseFloat(ttfbMatch[1]) * 1000 : null,
+    totalTime: totalMatch ? parseFloat(totalMatch[1]) * 1000 : null,
+  };
 };

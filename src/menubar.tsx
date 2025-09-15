@@ -8,9 +8,32 @@ import {
   parseCloudflareConnectionStatus,
   getConnectionStatus,
   getConnectionStatusColor,
+  parseConnectTime,
 } from "./utils";
 
 export default function Menubar() {
+  const {
+    isLoading: curlLoading,
+    data: curlData,
+    error: curlError,
+  } = useExec(
+    "curl",
+    [
+      "-s",
+      "-o",
+      "/dev/null",
+      "-w",
+      "'connect=%{time_connect} ttfb=%{time_starttransfer} total=%{time_total}'",
+      "https://one.one.one.one",
+    ],
+    {
+      onError: (error) => {
+        console.error(error);
+      },
+      keepPreviousData: false,
+    },
+  );
+
   const {
     isLoading: pingLoading,
     data: pingData,
@@ -38,13 +61,15 @@ export default function Menubar() {
     keepPreviousData: true,
   });
 
-  const isLoading = pingLoading || warpLoading || myIpLoading;
-  const pingOutput = pingError?.message? 'error' : pingData;
-  const warpOutput = warpError?.message? 'error' : warpData;
-  const myIpOutput = myIpError?.message? 'error' : myIp;
+  const isLoading = pingLoading || warpLoading || myIpLoading || curlLoading;
+  const pingOutput = pingError?.message ? "error" : pingData;
+  const warpOutput = warpError?.message ? "error" : warpData;
+  const myIpOutput = myIpError?.message ? "error" : myIp;
+  const curlOutput = curlError?.message ? "error" : curlData;
   const avgPing = parseAvgPing(pingOutput);
   const packetLoss = parsePacketLoss(pingOutput);
-  const connectionStatus = getConnectionStatus(packetLoss, avgPing);
+  const { connectTime, totalTime, ttfbTime } = parseConnectTime(curlOutput);
+  const connectionStatus = getConnectionStatus(packetLoss, avgPing, connectTime);
   const connectionStatusColor = getConnectionStatusColor(connectionStatus);
   const isOnline = connectionStatus !== "offline";
   const cloudflareStatus = parseCloudflareConnectionStatus(warpOutput);
@@ -59,7 +84,15 @@ export default function Menubar() {
       isLoading={isLoading}
     >
       {!!pingOutput && (
-        <MenubarStatusSection avgPing={avgPing} isOnline={isOnline} packetLoss={packetLoss} myIp={myIpOutput} />
+        <MenubarStatusSection
+          avgPing={avgPing}
+          isOnline={isOnline}
+          packetLoss={packetLoss}
+          myIp={myIpOutput}
+          connectTime={connectTime}
+          totalTime={totalTime}
+          ttfbTime={ttfbTime}
+        />
       )}
 
       {!!warpOutput && <MenubarCloudflareSection warpData={warpOutput} />}
