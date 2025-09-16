@@ -19,6 +19,8 @@ export default function Menubar() {
   } = useExec(
     "curl",
     [
+      "--connect-timeout",
+      "2",
       "-s",
       "-o",
       "/dev/null",

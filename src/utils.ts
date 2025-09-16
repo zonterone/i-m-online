@@ -55,10 +55,10 @@ export const getConnectionStatus = (
   avgPing: string | null,
   connectTime: number | null,
 ): ConnectionStatus => {
-  if (!packetLoss && !avgPing && !connectTime) return "offline";
+  if ((!packetLoss && !avgPing && !connectTime) || connectTime === 0) return "offline";
   if (packetLoss && parseFloat(packetLoss) > 3) return "bad";
   if (avgPing && parseFloat(avgPing) > 200) return "bad";
-  if (connectTime && connectTime > 1000) return "bad";
+  if (connectTime && connectTime > 500) return "bad";
   return "good";
 };
 
