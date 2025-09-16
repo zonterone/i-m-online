@@ -20,7 +20,7 @@ export default function Menubar() {
     "curl",
     [
       "--connect-timeout",
-      "2",
+      "3",
       "-s",
       "-o",
       "/dev/null",
